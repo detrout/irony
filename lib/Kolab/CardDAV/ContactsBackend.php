@@ -663,7 +663,7 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
         if (!empty($contact['manager']))
             $vc->add('X-MANAGER', join(',', (array)$contact['manager']));
         if (!empty($contact['spouse']))
-            $vc->add('X-SPOUSE', $contact['spouse']);
+            $vc->add('X-SPOUSE', join(',', (array)$contact['spouse']));
         if (!empty($contact['children']))
             $vc->add('X-CHILDREN', join(',', (array)$contact['children']));
 
@@ -858,13 +858,13 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
                     break;
 
                 case 'X-PROFESSION':
-                case 'X-SPOUSE':
                     $contact[strtolower(substr($prop->name, 2))] = $prop->value;
                     break;
 
                 case 'X-MANAGER':
                 case 'X-ASSISTANT':
                 case 'X-CHILDREN':
+                case 'X-SPOUSE':
                     $contact[strtolower(substr($prop->name, 2))] = explode(',', $prop->value);
                     break;
 

@@ -1,0 +1,6 @@
+etc/iRony
+usr/share/iRony
+usr/share/iRony/config
+usr/share/iRony/lib
+var/cache/iRony
+var/log/iRony

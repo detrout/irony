@@ -1,0 +1,9 @@
+etc/iRony/apache.conf etc/apache2/sites-available/iRony
+etc/iRony/dav.inc.php usr/share/iRony/config/dav.inc.php
+etc/roundcubemail/defaults.inc.php usr/share/iRony/config/defaults.inc.php
+etc/roundcubemail/config.inc.php usr/share/iRony/config/config.inc.php
+usr/share/chwala/lib usr/share/iRony/lib/FileAPI
+usr/share/roundcubemail/program/lib/Roundcube usr/share/iRony/lib/Roundcube
+usr/share/roundcubemail/plugins usr/share/iRony/lib/plugins
+var/cache/iRony usr/share/iRony/temp
+var/log/iRony usr/share/iRony/logs

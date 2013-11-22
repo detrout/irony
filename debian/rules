@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+#export DH_OPTIONS=-v
+#export DH_VERBOSE=1
+
+%:
+	dh $@
+
+override_dh_install:
+	mkdir -p $(CURDIR)/debian/irony/etc/iRony/
+	cp -a $(CURDIR)/debian/iRony.conf $(CURDIR)/debian/irony/etc/iRony/apache.conf
+	cp -a config/dav.inc.php.sample $(CURDIR)/debian/irony/etc/iRony/dav.inc.php
+	mkdir -p $(CURDIR)/debian/irony/usr/share/iRony/config
+	mkdir -p $(CURDIR)/debian/irony/usr/share/iRony/lib
+	cp -a lib/Kolab $(CURDIR)/debian/irony/usr/share/iRony/lib
+	cp -a public_html $(CURDIR)/debian/irony/usr/share/iRony/
+	cp -a vendor $(CURDIR)/debian/irony/usr/share/iRony/

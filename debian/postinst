@@ -1,0 +1,38 @@
+#!/bin/sh
+
+set -e
+
+#EXTRA#
+#DEBHELPER#
+
+fixperms() {
+    chown -R www-data:www-data \
+        /var/cache/iRony \
+        /var/log/iRony
+    chmod 750 \
+        /var/cache/iRony \
+        /var/log/iRony
+}
+
+reload_apache()
+{
+    if apache2ctl configtest 2>/dev/null; then
+        invoke-rc.d apache2 $1 || true
+    else
+        echo "Your apache2 configuration is broken, so we're not restarting it for you."
+    fi
+}
+
+
+case "$1" in
+    configure)
+        fixperms
+        a2enmod rewrite >/dev/null 2>&1 || true
+        if [ -e "/etc/apache2/sites-available/iRony" -a ! -e "/etc/apache2/sites-enabled/iRony" ]; then
+            a2ensite iRony
+        fi
+        reload_apache reload
+    ;;
+esac
+
+exit 0

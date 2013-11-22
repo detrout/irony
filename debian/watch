@@ -1,0 +1,4 @@
+version=3
+http://mirror.kolabsys.com/pub/releases/kolab-webadmin-(.+)\.tar\.gz
+#http://git.kolab.org/kolab-wap/ \
+#  /snapshot/kolab-wap-([0-9\.]+)\.tar\.gz

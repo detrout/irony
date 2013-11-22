@@ -1,0 +1,23 @@
+Source: irony
+Section: admin
+Priority: extra
+Maintainer: Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>
+Uploaders: Paul Klos <kolab@klos2day.nl>
+Build-Depends: debhelper (>= 8)
+Standards-Version: 3.9.3
+Homepage: http://www.kolab.org/
+Vcs-Browser: http://git.kolabsys.com/apt/iRony/
+Vcs-Git: git://git.kolabsys.com/git/apt/iRony
+
+Package: irony
+Architecture: all
+Depends:
+        apache2,
+        chwala,
+		libapache2-mod-php5,
+		php5,
+        roundcubemail,
+        roundcubemail-plugins-kolab,
+		${misc:Depends}
+Description: Kolab Groupware DAV Access
+ iRony is the DAV protocol access layer to Kolab Groupware

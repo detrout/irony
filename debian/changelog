@@ -1,0 +1,50 @@
+irony (0.2.4-0~kolab5) unstable; urgency=low
+
+  * Correct installation location for iRony apache configuration
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Fri, 22 Nov 2013 13:10:00 +0200
+
+irony (0.2.4-0~kolab4) unstable; urgency=low
+
+  * enable site as well
+  * reload apache, not stop/start
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Thu, 21 Nov 2013 13:10:00 +0200
+
+irony (0.2.4-0~kolab2) unstable; urgency=low
+
+  * Expect list of spouses
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Mon, 11 Nov 2013 13:10:00 +0200
+
+irony (0.2.4-0~kolab1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Fri,  1 Nov 2013 13:10:00 +0200
+
+irony (0.2.3-2) unstable; urgency=low
+
+  * Ship fix for #2335
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Wed, 16 Oct 2013 13:10:00 +0200
+
+irony (0.2.3-1) unstable; urgency=low
+
+  * New upstream version
+  * Fix installation location for Apache configuration
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Tue,  8 Oct 2013 09:49:12 -0400
+
+irony (0.2.1-1) unstable; urgency=low
+
+  * Version 0.2.1
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Thu, 19 Sep 2013 09:49:12 -0400
+
+irony (0.2.0-1) unstable; urgency=low
+
+  * Version 0.2.0
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Sun, 15 Sep 2013 09:49:12 -0400
+

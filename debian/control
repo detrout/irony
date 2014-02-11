@@ -17,7 +17,7 @@ Depends:
 		libapache2-mod-php5,
 		php5,
         roundcubemail,
-        roundcubemail-plugins-kolab,
+        roundcubemail-plugins-kolab (>= 3.1.12),
 		${misc:Depends}
 Description: Kolab Groupware DAV Access
  iRony is the DAV protocol access layer to Kolab Groupware

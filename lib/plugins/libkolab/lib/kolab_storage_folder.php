@@ -92,7 +92,6 @@ class kolab_storage_folder
         $this->cache->set_folder($this);
     }
 
-
     /**
      *
      */
@@ -280,7 +279,7 @@ class kolab_storage_folder
         }
 
         // generate a folder UID and set it to IMAP
-        $uid = rtrim(chunk_split(md5($this->name . $this->get_owner()), 12, '-'), '-');
+        $uid = rtrim(chunk_split(md5($this->name . $this->get_owner() . uniqid('-', true)), 12, '-'), '-');
         $this->set_uid($uid);
 
         return $uid;
@@ -424,6 +423,21 @@ class kolab_storage_folder
         return $this->cache->select($this->_prepare_query($query), true);
     }
 
+    /**
+     * Setter for ORDER BY and LIMIT parameters for cache queries
+     *
+     * @param array   List of columns to order by
+     * @param integer Limit result set to this length
+     * @param integer Offset row
+     */
+    public function set_order_and_limit($sortcols, $length = null, $offset = 0)
+    {
+        $this->cache->set_order_by($sortcols);
+
+        if ($length !== null) {
+            $this->cache->set_limit($length, $offset);
+        }
+    }
 
     /**
      * Helper method to sanitize query arguments
@@ -764,6 +778,7 @@ class kolab_storage_folder
             // update cache with new UID
             if ($result) {
                 $object['_msguid'] = $result;
+                $object['_mailbox'] = $this->name;
                 $this->cache->insert($result, $object);
 
                 // remove temp file

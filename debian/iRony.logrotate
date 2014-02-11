@@ -1,0 +1,7 @@
+/var/log/iRony/console /var/log/iRony/errors /var/log/iRony/imap /var/log/iRony/ldap /var/log/iRony/sendmail /var/log/iRony/sieve /var/log/iRony/smtp /var/log/iRony/sql /var/log/iRony/userlogins {
+    missingok
+    compress
+    notifempty
+    size 30k
+    create 0640 www-data adm
+}

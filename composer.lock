@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "5655ee88c3b7ee0fcb38073640b2049f",
+    "hash": "0ebeb40020fcf0fccc4ade5ab5c2eade",
     "packages": [
         {
             "name": "pear-pear.php.net/Archive_Tar",
@@ -59,10 +59,10 @@
         },
         {
             "name": "pear-pear.php.net/HTTP_Request2",
-            "version": "2.1.1",
+            "version": "2.2.1",
             "dist": {
                 "type": "file",
-                "url": "http://pear.php.net/get/HTTP_Request2-2.1.1.tgz",
+                "url": "http://pear.php.net/get/HTTP_Request2-2.2.1.tgz",
                 "reference": null,
                 "shasum": null
             },
@@ -72,7 +72,7 @@
                 "php": ">=5.2.0.0"
             },
             "replace": {
-                "pear-pear/http_request2": "== 2.1.1.0"
+                "pear-pear/http_request2": "== 2.2.1.0"
             },
             "type": "pear-library",
             "autoload": {
@@ -166,18 +166,18 @@
         },
         {
             "name": "pear-pear.php.net/Net_URL2",
-            "version": "2.0.0",
+            "version": "2.0.5",
             "dist": {
                 "type": "file",
-                "url": "http://pear.php.net/get/Net_URL2-2.0.0.tgz",
+                "url": "http://pear.php.net/get/Net_URL2-2.0.5.tgz",
                 "reference": null,
                 "shasum": null
             },
             "require": {
-                "php": ">=5.0.0.0"
+                "php": ">=5.1.4.0"
             },
             "replace": {
-                "pear-pear/net_url2": "== 2.0.0.0"
+                "pear-pear/net_url2": "== 2.0.5.0"
             },
             "type": "pear-library",
             "autoload": {
@@ -188,7 +188,7 @@
             "include-path": [
                 "/"
             ],
-            "description": "Provides parsing of URLs into their constituent parts (scheme, host, path etc.), URL generation, and resolving of relative URLs."
+            "description": "Provides parsing of URLs into their constituent parts (scheme, host, path etc.), URL generation, and resolving of\n    relative URLs."
         },
         {
             "name": "pear-pear.php.net/PEAR",
@@ -285,12 +285,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fruux/sabre-dav.git",
-                "reference": "41c750da3c60a427cdd847df090ef0fc7e8f1076"
+                "reference": "f8bad179521f434c60d836c8203f791b37a30657"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fruux/sabre-dav/zipball/41c750da3c60a427cdd847df090ef0fc7e8f1076",
-                "reference": "41c750da3c60a427cdd847df090ef0fc7e8f1076",
+                "url": "https://api.github.com/repos/fruux/sabre-dav/zipball/f8bad179521f434c60d836c8203f791b37a30657",
+                "reference": "f8bad179521f434c60d836c8203f791b37a30657",
                 "shasum": ""
             },
             "require": {
@@ -353,7 +353,7 @@
                 "framework",
                 "iCalendar"
             ],
-            "time": "2013-10-02 18:38:26"
+            "time": "2014-02-09 21:25:45"
         },
         {
             "name": "sabre/vobject",
@@ -361,12 +361,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thomascube/sabre-vobject.git",
-                "reference": "84b64c65f9a94f7ec5a5e327bab3cc1335dd613c"
+                "reference": "741800a77d566fa474c88b36a79ca77dae7e3450"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thomascube/sabre-vobject/zipball/84b64c65f9a94f7ec5a5e327bab3cc1335dd613c",
-                "reference": "84b64c65f9a94f7ec5a5e327bab3cc1335dd613c",
+                "url": "https://api.github.com/repos/thomascube/sabre-vobject/zipball/741800a77d566fa474c88b36a79ca77dae7e3450",
+                "reference": "741800a77d566fa474c88b36a79ca77dae7e3450",
                 "shasum": ""
             },
             "require": {
@@ -404,7 +404,7 @@
                 "forum": "https://groups.google.com/group/sabredav-discuss",
                 "source": "https://github.com/fruux/sabre-vobject"
             },
-            "time": "2013-10-29 09:31:33"
+            "time": "2014-01-23 08:33:56"
         }
     ],
     "packages-dev": [

@@ -48,6 +48,7 @@ class CalendarBackend extends CalDAV\Backend\AbstractBackend
     private $aliases;
     private $useragent;
     private $type_component_map = array('event' => 'VEVENT', 'task' => 'VTODO');
+    private $subscribed = null;
 
     /**
      * Read available calendar folders from server
@@ -59,7 +60,7 @@ class CalendarBackend extends CalDAV\Backend\AbstractBackend
             return $this->calendars;
 
         // get all folders that have "event" type
-        $folders = array_merge(kolab_storage::get_folders('event'), kolab_storage::get_folders('task'));
+        $folders = array_merge(kolab_storage::get_folders('event', $this->subscribed), kolab_storage::get_folders('task', $this->subscribed));
         $this->calendars = $this->folders = $this->aliases = array();
 
         foreach (kolab_storage::sort_folders($folders) as $folder) {
@@ -162,6 +163,13 @@ class CalendarBackend extends CalDAV\Backend\AbstractBackend
 
         if ($this->calendars[$id] && empty($this->calendars[$id]['principaluri'])) {
             $this->calendars[$id]['principaluri'] = 'principals/' . HTTPBasic::$current_user;
+        }
+
+        // retry with subscribed = false (#2701)
+        if (empty($this->calendars[$id]) && $id != 'outbox' && $this->subscribed === null && rcube::get_instance()->config->get('kolab_use_subscriptions')) {
+            $this->subscribed = false;
+            unset($this->calendars);
+            return $this->getCalendarByName($calendarUri);
         }
 
         return $this->calendars[$id];
@@ -280,7 +288,7 @@ class CalendarBackend extends CalDAV\Backend\AbstractBackend
         $events = array();
         $storage = $this->get_storage_folder($calendarId);
         if ($storage) {
-            foreach ((array)$storage->select($query) as $event) {
+            foreach ($storage->select($query) as $event) {
                 $events[] = array(
                     'id' => $event['uid'],
                     'uri' => $event['uid'] . '.ics',
@@ -569,7 +577,7 @@ class CalendarBackend extends CalDAV\Backend\AbstractBackend
 
       $results = array();
       if ($storage = $this->get_storage_folder($calendarId)) {
-          foreach ((array)$storage->select($query) as $event) {
+          foreach ($storage->select($query) as $event) {
               // TODO: cache the already fetched events in memory (really?)
               $results[] = $event['uid'] . '.ics';
           }

@@ -26,12 +26,12 @@ namespace Kolab\DAV\Auth;
 use \rcube;
 use \rcube_user;
 use \rcube_utils;
-use Kolab\Utils\CacheAPC;
+use Sabre\DAV;
 
 /**
  *
  */
-class HTTPBasic extends \Sabre\DAV\Auth\Backend\AbstractBasic
+class HTTPBasic extends DAV\Auth\Backend\AbstractBasic
 {
     // Make the current user name available to all classes
     public static $current_user = null;
@@ -62,7 +62,7 @@ class HTTPBasic extends \Sabre\DAV\Auth\Backend\AbstractBasic
                 'pass'  => $password,
             ));
 
-            if ($cache) {
+            if ($cache && !$auth['abort']) {
                 $cache->set($cache_key, array(
                     'user'  => $auth['user'],
                     'host'  => $auth['host'],
@@ -81,6 +81,21 @@ class HTTPBasic extends \Sabre\DAV\Auth\Backend\AbstractBasic
             self::$current_pass = $auth['pass'];
 
             return true;
+        }
+        else {
+            // check LDAP auth if using cached data
+            if (!isset($auth['abort'])) {
+                $auth = $rcube->plugins->exec_hook('authenticate', array(
+                    'host'  => $auth['host'],
+                    'user'  => $username,
+                    'pass'  => $password,
+                ));
+            }
+
+            // LDAP server failure... send 503 error
+            if ($auth['kolab_ldap_error']) {
+                throw new ServiceUnavailable('The service is temporarily unavailable (LDAP failure)');
+            }
         }
 
         return false;

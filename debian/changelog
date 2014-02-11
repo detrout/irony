@@ -1,3 +1,28 @@
+irony (0.2.7-0~kolab1) unstable; urgency=low
+
+  * New upstream version
+  * Fix memory consumption on very large result sets
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Tue, 11 Feb 2014 13:10:00 +0200
+
+irony (0.2.6-0~kolab1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Thu,  9 Jan 2014 13:10:00 +0200
+
+irony (0.2.5-0~kolab1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>  Sat, 30 Nov 2013 13:10:00 +0200
+
+irony (0.2.4-0~kolab6) unstable; urgency=low
+
+  * added logrotate script
+
+ -- Daniel Hoffend <dh@dotlan.net>  Tue, 26 Nov 2013 23:44:12 +0200
+
 irony (0.2.4-0~kolab5) unstable; urgency=low
 
   * Correct installation location for iRony apache configuration

@@ -622,6 +622,10 @@ class rcube_utils
      */
     public static function parse_host($name, $host = '')
     {
+        if (!is_string($name)) {
+            return $name;
+        }
+
         // %n - host
         $n = preg_replace('/:\d+$/', '', $_SERVER['SERVER_NAME']);
         // %t - host name without first part, e.g. %n=mail.domain.tld, %t=domain.tld
@@ -642,8 +646,7 @@ class rcube_utils
             }
         }
 
-        $name = str_replace(array('%n', '%t', '%d', '%h', '%z', '%s'), array($n, $t, $d, $h, $z, $s[2]), $name);
-        return $name;
+        return str_replace(array('%n', '%t', '%d', '%h', '%z', '%s'), array($n, $t, $d, $h, $z, $s[2]), $name);
     }
 
 
@@ -680,9 +683,17 @@ class rcube_utils
      */
     public static function remote_addr()
     {
-        foreach (array('HTTP_X_FORWARDED_FOR','HTTP_X_REAL_IP','REMOTE_ADDR') as $prop) {
-            if (!empty($_SERVER[$prop]))
-                return $_SERVER[$prop];
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $hosts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'], 2);
+            return $hosts[0];
+        }
+
+        if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+            return $_SERVER['HTTP_X_REAL_IP'];
+        }
+
+        if (!empty($_SERVER['REMOTE_ADDR'])) {
+            return $_SERVER['REMOTE_ADDR'];
         }
 
         return '';
@@ -912,10 +923,20 @@ class rcube_utils
      *
      * @param string  Input string (UTF-8)
      * @param boolean True to return list of words as array
+     *
      * @return mixed  Normalized string or a list of normalized tokens
      */
     public static function normalize_string($str, $as_array = false)
     {
+        // replace 4-byte unicode characters with '?' character,
+        // these are not supported in default utf-8 charset on mysql,
+        // the chance we'd need them in searching is very low
+        $str = preg_replace('/('
+            . '\xF0[\x90-\xBF][\x80-\xBF]{2}'
+            . '|[\xF1-\xF3][\x80-\xBF]{3}'
+            . '|\xF4[\x80-\x8F][\x80-\xBF]{2}'
+            . ')/', '?', $str);
+
         // split by words
         $arr = self::tokenize_string($str);
 

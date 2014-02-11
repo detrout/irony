@@ -281,7 +281,8 @@ abstract class rcube_addressbook
      * @param array Assoziative array with save data
      *  Keys:   Field name with optional section in the form FIELD:SECTION
      *  Values: Field value. Can be either a string or an array of strings for multiple values
-     * @return boolean True on success, False on error
+     *
+     * @return mixed On success if ID has been changed returns ID, otherwise True, False on error
      */
     function update($id, $save_cols)
     {
@@ -311,8 +312,10 @@ abstract class rcube_addressbook
 
     /**
      * Mark all records in database as deleted
+     *
+     * @param bool $with_groups Remove also groups
      */
-    function delete_all()
+    function delete_all($with_groups = false)
     {
         /* empty for read-only address books */
     }

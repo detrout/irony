@@ -1,6 +1,7 @@
 irony (0.2.7-0~det1) UNRELEASED; urgency=medium
 
   * Adjust depends to allow php5-fpm
+  * Add myself to uploaders
 
  -- Diane Trout <diane@ghic.org>  Thu, 20 Mar 2014 14:19:58 -0700
 

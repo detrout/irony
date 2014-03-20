@@ -2,7 +2,7 @@ Source: irony
 Section: admin
 Priority: extra
 Maintainer: Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>
-Uploaders: Paul Klos <kolab@klos2day.nl>
+Uploaders: Paul Klos <kolab@klos2day.nl>, Diane Trout <diane@ghic.org>
 Build-Depends: debhelper (>= 8)
 Standards-Version: 3.9.3
 Homepage: http://www.kolab.org/

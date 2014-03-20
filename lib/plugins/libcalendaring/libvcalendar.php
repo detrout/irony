@@ -292,7 +292,7 @@ class libvcalendar implements Iterator
             $this->method = strval($vobject->METHOD);
             $this->agent  = strval($vobject->PRODID);
 
-            foreach ($vobject->getBaseComponents() as $ve) {
+            foreach ($vobject->getBaseComponents() ?: $vobject->getComponents() as $ve) {
                 if ($ve->name == 'VEVENT' || $ve->name == 'VTODO') {
                     // convert to hash array representation
                     $object = $this->_to_array($ve);
@@ -424,7 +424,7 @@ class libvcalendar implements Iterator
                 break;
 
             case 'RECURRENCE-ID':
-                // $event['recurrence_id'] = self::convert_datetime($prop);
+                $event['recurrence_date'] = self::convert_datetime($prop);
                 break;
 
             case 'RELATED-TO':
@@ -465,7 +465,7 @@ class libvcalendar implements Iterator
 
             case 'X-MICROSOFT-CDO-BUSYSTATUS':
                 if ($prop->value == 'OOF')
-                    $event['free_busy'] == 'outofoffice';
+                    $event['free_busy'] = 'outofoffice';
                 else if (in_array($prop->value, array('FREE', 'BUSY', 'TENTATIVE')))
                     $event['free_busy'] = strtolower($prop->value);
                 break;
@@ -557,7 +557,6 @@ class libvcalendar implements Iterator
                 switch ($prop->name) {
                 case 'TRIGGER':
                     foreach ($prop->parameters as $param) {
-                        console(strval($param->name), strval($param->value));
                         if ($param->name == 'VALUE' && $param->value == 'DATE-TIME') {
                             $trigger = '@' . $prop->getDateTime()->format('U');
                         }
@@ -853,8 +852,14 @@ class libvcalendar implements Iterator
             $ve->add($cat);
         }
 
-        if (!empty($event['free_busy']))
+        if (!empty($event['free_busy'])) {
             $ve->add('TRANSP', $event['free_busy'] == 'free' ? 'TRANSPARENT' : 'OPAQUE');
+
+            // for Outlook clients we provide the X-MICROSOFT-CDO-BUSYSTATUS property
+            if (stripos($this->agent, 'outlook') !== false) {
+                $ve->add('X-MICROSOFT-CDO-BUSYSTATUS', $event['free_busy'] == 'outofoffice' ? 'OOF' : strtoupper($event['free_busy']));
+            }
+        }
 
         if ($event['priority'])
           $ve->add('PRIORITY', $event['priority']);

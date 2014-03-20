@@ -49,8 +49,26 @@ class Plugin extends CardDAV\Plugin
     {
         parent::initialize($server);
 
+        $server->subscribeEvent('beforeMethod', array($this, 'beforeMethod'));
         $server->subscribeEvent('afterCreateFile', array($this, 'afterWriteContent'));
         $server->subscribeEvent('afterWriteContent', array($this, 'afterWriteContent'));
+    }
+
+    /**
+     * Handler for beforeMethod events
+     */
+    public function beforeMethod($method, $uri)
+    {
+        if ($method == 'PUT' && $this->server->httpRequest->getHeader('If-None-Match') == '*') {
+            // In-None-Match: * is only valid with PUT requests creating a new resource.
+            // SOGo Conenctor for Thunderbird also sends it with update requests which then fail
+            // in the Server::checkPreconditions().
+            // See https://issues.kolab.org/show_bug.cgi?id=2589 and http://www.sogo.nu/bugs/view.php?id=1624
+            // This is a work-around for the buggy SOGo connector and should be removed once fixed.
+            if (strpos($this->server->httpRequest->getHeader('User-Agent'), 'Thunderbird/') > 0) {
+                unset($_SERVER['HTTP_IF_NONE_MATCH']);
+            }
+        }
     }
 
     /**

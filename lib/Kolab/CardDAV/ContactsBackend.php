@@ -43,6 +43,7 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
     private $folders;
     private $aliases;
     private $useragent;
+    private $subscribed = null;
 
 
     /**
@@ -55,7 +56,7 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
             return $this->sources;
 
         // get all folders that have "contact" type
-        $folders = kolab_storage::get_folders('contact');
+        $folders = kolab_storage::get_folders('contact', $this->subscribed);
         $this->sources = $this->folders = $this->aliases = array();
 
         foreach (kolab_storage::sort_folders($folders) as $folder) {
@@ -164,6 +165,13 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
             $id = $this->aliases[$addressBookUri];
         }
 
+        // retry with subscribed = false (#2701)
+        if (empty($this->sources[$id]) && $this->subscribed === null && rcube::get_instance()->config->get('kolab_use_subscriptions')) {
+            $this->subscribed = false;
+            unset($this->sources);
+            return $this->getAddressBookByName($addressBookUri);
+        }
+
         return $this->sources[$id];
     }
 
@@ -261,11 +269,11 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
         $query = array(array('type', '=', $groups_support ? array('contact','distribution-list') : 'contact'));
         $cards = array();
         if ($storage = $this->get_storage_folder($addressBookId)) {
-            foreach ((array)$storage->select($query) as $contact) {
+            foreach ($storage->select($query) as $contact) {
                 $cards[] = array(
                     'id' => $contact['uid'],
                     'uri' => $contact['uid'] . '.vcf',
-                    'lastmodified' => $contact['changed']->format('U'),
+                    'lastmodified' => is_a($contact['changed'], 'DateTime') ? $contact['changed']->format('U') : null,
                     'etag' => self::_get_etag($contact),
                     'size' => $contact['_size'],
                 );
@@ -304,7 +312,7 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
             return array(
                 'id' => $contact['uid'],
                 'uri' => $contact['uid'] . '.vcf',
-                'lastmodified' => $contact['changed']->format('U'),
+                'lastmodified' => is_a($contact['changed'], 'DateTime') ? $contact['changed']->format('U') : null,
                 'carddata' => $this->_to_vcard($contact),
                 'etag' => self::_get_etag($contact),
             );
@@ -638,7 +646,7 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
                 $vc->add($prop_prefix . 'MEMBER', $value);
             }
         }
-        else {
+        else if ($contact['surname'] . $contact['firstname'] . $contact['middlename'] . $contact['prefix'] . $contact['suffix'] != '') {
             $n = VObject\Property::create('N');
             $n->setParts(array($contact['surname'], $contact['firstname'], $contact['middlename'], $contact['prefix'], $contact['suffix']));
             $vc->add($n);
@@ -663,7 +671,7 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
         if (!empty($contact['manager']))
             $vc->add('X-MANAGER', join(',', (array)$contact['manager']));
         if (!empty($contact['spouse']))
-            $vc->add('X-SPOUSE', $contact['spouse']);
+            $vc->add('X-SPOUSE', join(',', (array)$contact['spouse']));
         if (!empty($contact['children']))
             $vc->add('X-CHILDREN', join(',', (array)$contact['children']));
 
@@ -703,7 +711,7 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
         foreach (array('birthday','anniversary') as $key) {
             if (!empty($contact[$key]) && !$contact[$key] instanceof \DateTime) {
                 try {
-                    $contact[$key] = new \DateTime('@' . \rcube_utils::strtotime($contact[$key]));
+                    $contact[$key] = new \DateTime(\rcube_utils::clean_datestr($contact[$key]));
                 }
                 catch (\Exception $e) {
                     $contact[$key] = null;
@@ -805,6 +813,9 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
                     break;
 
                 case 'TITLE':
+                    $contact['jobtitle'] = $prop->value;
+                    break;
+
                 case 'NICKNAME':
                     $contact[strtolower($prop->name)] = $prop->value;
                     break;
@@ -858,13 +869,13 @@ class ContactsBackend extends CardDAV\Backend\AbstractBackend
                     break;
 
                 case 'X-PROFESSION':
-                case 'X-SPOUSE':
                     $contact[strtolower(substr($prop->name, 2))] = $prop->value;
                     break;
 
                 case 'X-MANAGER':
                 case 'X-ASSISTANT':
                 case 'X-CHILDREN':
+                case 'X-SPOUSE':
                     $contact[strtolower(substr($prop->name, 2))] = explode(',', $prop->value);
                     break;
 

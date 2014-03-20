@@ -85,7 +85,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         // include virtual folders for a full folder tree
         if (!$this->rc->output->ajax_call && in_array($this->rc->action, array('index','')))
-            $folders = $this->_folder_hierarchy($folders, $delim);
+            $folders = kolab_storage::folder_hierarchy($folders);
 
         foreach ($folders as $folder) {
             $utf7name = $folder->name;
@@ -94,7 +94,7 @@ class tasklist_kolab_driver extends tasklist_driver
             $editname = rcube_charset::convert(array_pop($path_imap), 'UTF7-IMAP');  // pop off raw name part
             $path_imap = join($delim, $path_imap);
 
-            $fullname = kolab_storage::object_name($utf7name);
+            $fullname = $folder->get_name();
             $listname = kolab_storage::folder_displayname($fullname, $listnames);
 
             // special handling for virtual folders
@@ -148,38 +148,6 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
     /**
-     * Check the folder tree and add the missing parents as virtual folders
-     */
-    private function _folder_hierarchy($folders, $delim)
-    {
-        $parents = array();
-        $existing = array_map(function($folder){ return $folder->name; }, $folders);
-        foreach ($folders as $id => $folder) {
-            $path = explode($delim, $folder->name);
-            array_pop($path);
-
-            // skip top folders or ones with a custom displayname
-            if (count($path) <= 1 || kolab_storage::custom_displayname($folder->name))
-                continue;
-
-            while (count($path) > 1 && ($parent = join($delim, $path))) {
-                if (!in_array($parent, $existing) && !$parents[$parent]) {
-                    $parents[$parent] = new virtual_kolab_storage_folder($parent, $folder->get_namespace());
-                }
-                array_pop($path);
-            }
-        }
-
-        // add virtual parents to the list and sort again
-        if (count($parents)) {
-            $folders = kolab_storage::sort_folders(array_merge($folders, array_values($parents)));
-        }
-
-        return $folders;
-    }
-
-
-    /**
      * Get a list of available task lists from this source
      */
     public function get_lists()
@@ -206,6 +174,7 @@ class tasklist_kolab_driver extends tasklist_driver
     {
         $prop['type'] = 'task' . ($prop['default'] ? '.default' : '');
         $prop['active'] = true; // activate folder by default
+        $prop['subscribed'] = true;
         $folder = kolab_storage::folder_update($prop);
 
         if ($folder === false) {
@@ -324,7 +293,7 @@ class tasklist_kolab_driver extends tasklist_driver
         $counts = array('all' => 0, 'flagged' => 0, 'today' => 0, 'tomorrow' => 0, 'overdue' => 0, 'nodate' => 0);
         foreach ($lists as $list_id) {
             $folder = $this->folders[$list_id];
-            foreach ((array)$folder->select(array(array('tags','!~','x-complete'))) as $record) {
+            foreach ($folder->select(array(array('tags','!~','x-complete'))) as $record) {
                 $rec = $this->_to_rcube_task($record);
 
                 if ($rec['complete'] >= 1.0)  // don't count complete tasks
@@ -388,7 +357,7 @@ class tasklist_kolab_driver extends tasklist_driver
 
         foreach ($lists as $list_id) {
             $folder = $this->folders[$list_id];
-            foreach ((array)$folder->select($query) as $record) {
+            foreach ($folder->select($query) as $record) {
                 $task = $this->_to_rcube_task($record);
                 $task['list'] = $list_id;
 
@@ -451,7 +420,7 @@ class tasklist_kolab_driver extends tasklist_driver
             $query_ids = array();
             foreach ($task_ids as $task_id) {
                 $query = array(array('tags','=','x-parent:' . $task_id));
-                foreach ((array)$folder->select($query) as $record) {
+                foreach ($folder->select($query) as $record) {
                     // don't rely on kolab_storage_folder filtering
                     if ($record['parent_id'] == $task_id) {
                         $childs[] = $record['uid'];
@@ -505,7 +474,7 @@ class tasklist_kolab_driver extends tasklist_driver
                 continue;
 
             $folder = $this->folders[$lid];
-            foreach ((array)$folder->select($query) as $record) {
+            foreach ($folder->select($query) as $record) {
                 if (!$record['alarms'])  // don't trust query :-)
                     continue;
 
@@ -597,7 +566,7 @@ class tasklist_kolab_driver extends tasklist_driver
             'title' => $record['title'],
 #            'location' => $record['location'],
             'description' => $record['description'],
-            'tags' => (array)$record['categories'],
+            'tags' => array_filter((array)$record['categories']),
             'flagged' => $record['priority'] == 1,
             'complete' => $record['status'] == 'COMPLETED' ? 1 : floatval($record['complete'] / 100),
             'parent_id' => $record['parent_id'],
@@ -905,26 +874,3 @@ class tasklist_kolab_driver extends tasklist_driver
     }
 
 }
-
-/**
- * Helper class that represents a virtual IMAP folder
- * with a subset of the kolab_storage_folder API.
- */
-class virtual_kolab_storage_folder
-{
-    public $name;
-    public $namespace;
-    public $virtual = true;
-
-    public function __construct($name, $ns)
-    {
-        $this->name = $name;
-        $this->namespace = $ns;
-    }
-
-    public function get_namespace()
-    {
-        return $this->namespace;
-    }
-}
-

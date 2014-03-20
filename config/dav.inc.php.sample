@@ -25,7 +25,7 @@
 $config = array();
 
 // Log DAV requests to <log_dir>/davdebug
-$config['base_uri'] = null;
+$config['base_uri'] = '/iRony/';
 
 // User agent string written to kolab storage MIME messages
 $config['useragent'] = 'Kolab DAV Server libkolab/' . RCUBE_VERSION;
@@ -35,7 +35,7 @@ $config['kolabdav_plugins'] = array('kolab_auth');
 
 // Type of Auth cache. Supported values: 'db', 'apc' and 'memcache'.
 // Note: This is only for username canonification map.
-$config['kolabdav_auth_cache'] = 'apc';
+$config['kolabdav_auth_cache'] = 'db';
 
 // lifetime of the Auth cache, possible units: s, m, h, d, w
 $config['kolabdav_auth_cache_ttl'] = '1h';
@@ -46,3 +46,7 @@ $config['kolabdav_console'] = false;
 
 // enable per-user debugging if /var/log/iRony/<username>/ folder exists
 $config['kolabdav_user_debug'] = false;
+
+// enable logging of full HTTP payload
+// (bitmask of these values: 2 = HTTP Requests, 4 = HTTP Responses)
+$config['kolabdav_http_log'] = 0;

@@ -46,7 +46,7 @@ class DAVBackend
      */
     public static function get_storage_folder($uid, $type)
     {
-        foreach (kolab_storage::get_folders($type) as $folder) {
+        foreach (kolab_storage::get_folders($type, false) as $folder) {
             if (self::get_uid($folder) == $uid)
                 return $folder;
         }
@@ -72,7 +72,7 @@ class DAVBackend
         }
 
         // generate a folder UID and set it to IMAP
-        $uid = rtrim(chunk_split(md5($folder->name . $folder->get_owner()), 12, '-'), '-');
+        $uid = rtrim(chunk_split(md5($folder->name . $folder->get_owner() . uniqid('-', true)), 12, '-'), '-');
         self::set_uid($folder, $uid);
 
         return $uid;
@@ -143,9 +143,13 @@ class DAVBackend
         foreach ($mutations as $prop => $val) {
             switch ($prop) {
                 case '{DAV:}displayname':
+                    // abort if name didn't change
+                    if ($val == html_entity_decode($folder->get_name(), ENT_COMPAT, RCUBE_CHARSET)) {
+                        break;
+                    }
                     // restrict renaming to personal folders only
                     if ($folder->get_namespace() == 'personal') {
-                        $parts = preg_split('!(\s*/\s*|\s+[»:]\s+)!', $val);
+                        $parts = preg_split('!(\s*/\s*|\s+[Â»:]\s+)!', $val);
                         $updates['oldname'] = $folder->name;
                         $updates['name'] = array_pop($parts);
                         $updates['parent'] = join('/', $parts);
@@ -156,7 +160,10 @@ class DAVBackend
                     break;
 
                 case '{http://apple.com/ns/ical/}calendar-color':
-                    $updates['color'] = substr(trim($val, '#'), 0, 6);
+                    $newcolor = substr(trim($val, '#'), 0, 6);
+                    if (strcasecmp($newcolor, $folder->get_color())) {
+                        $updates['color'] = $newcolor;
+                    }
                     break;
 
                 case '{urn:ietf:params:xml:ns:caldav}calendar-description':

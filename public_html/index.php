@@ -5,10 +5,10 @@
  *
  * This is the public API to provide *DAV-based access to the Kolab Groupware backend
  *
- * @version 0.2.3
+ * @version 0.2.6
  * @author Thomas Bruederli <bruederli@kolabsys.com>
  *
- * Copyright (C) 2013, Kolab Systems AG <contact@kolabsys.com>
+ * Copyright (C) 2013-2014, Kolab Systems AG <contact@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -26,7 +26,7 @@
 
 // define some environment variables used throughout the app and libraries
 define('KOLAB_DAV_ROOT', realpath('../'));
-define('KOLAB_DAV_VERSION', '0.2.4');
+define('KOLAB_DAV_VERSION', '0.2.7');
 define('KOLAB_DAV_START', microtime(true));
 
 define('RCUBE_INSTALL_PATH', KOLAB_DAV_ROOT . '/');
@@ -66,30 +66,18 @@ $required = array('libkolab', 'libcalendaring');
 $rcube->plugins->init($rcube);
 $rcube->plugins->load_plugins($plugins, $required);
 
+// enable logger
+if ($rcube->config->get('kolabdav_console') || $rcube->config->get('kolabdav_user_debug')) {
+    $logger = new \Kolab\Utils\DAVLogger((\Kolab\Utils\DAVLogger::CONSOLE | $rcube->config->get('kolabdav_http_log', 0)));
+}
 
 // convenience function, you know it well :-)
 function console()
 {
-    global $rcube;
+    global $logger;
 
-    // write to global console log
-    if ($rcube->config->get('kolabdav_console', false)) {
-        call_user_func_array(array('rcube', 'console'), func_get_args());
-    }
-
-    // dump console data per user
-    if ($rcube->config->get('kolabdav_user_debug', false)) {
-        $uname = \Kolab\DAV\Auth\HTTPBasic::$current_user;
-        $log_dir = $rcube->config->get('log_dir', RCUBE_INSTALL_PATH . 'logs');
-
-        if ($uname && $log_dir && is_writable($log_dir . '/' . $uname)) {
-            $msg = array();
-            foreach (func_get_args() as $arg) {
-                $msg[] = !is_string($arg) ? var_export($arg, true) : $arg;
-            }
-
-            rcube::write_log($uname . '/console', join(";\n", $msg));
-        }
+    if ($logger) {
+        call_user_func_array(array($logger, 'console'), func_get_args());
     }
 }
 
@@ -145,9 +133,9 @@ else if ($services['WEBDAV']) {
 $server = new \Sabre\DAV\Server($nodes);
 $server->setBaseUri($base_uri);
 
-// enable logger
-if ($rcube->config->get('kolabdav_console') || $rcube->config->get('kolabdav_user_debug')) {
-    $server->addPlugin(new \Kolab\Utils\DAVLogger());
+// connect logger
+if (is_object($logger)) {
+    $server->addPlugin($logger);
 }
 
 // register some plugins
@@ -167,17 +155,30 @@ if ($services['CARDDAV']) {
 if ($services['WEBDAV']) {
     // the lock manager is reponsible for making sure users don't overwrite each others changes.
     // TODO: replace this with a class that manages locks in the Kolab backend
-    $locks_backend = new \Sabre\DAV\Locks\Backend\File(KOLAB_DAV_ROOT . '/temp/locks');
+    $locks_backend = new \Kolab\DAV\Locks\File(KOLAB_DAV_ROOT . '/temp');
     $server->addPlugin(new \Sabre\DAV\Locks\Plugin($locks_backend));
 
     // intercept some of the garbage files operation systems tend to generate when mounting a WebDAV share
-    $server->addPlugin(new \Sabre\DAV\TemporaryFileFilterPlugin(KOLAB_DAV_ROOT . '/temp'));
+    $server->addPlugin(new \Kolab\DAV\TempFilesPlugin(KOLAB_DAV_ROOT . '/temp'));
 }
 
 // HTML UI for browser-based access (recommended only for development)
 if (getenv('DAVBROWSER')) {
     $server->addPlugin(new \Sabre\DAV\Browser\Plugin());
 }
+
+// log exceptions in iRony error log
+$server->subscribeEvent('exception', function($e){
+    if (!($e instanceof \Sabre\DAV\Exception) || $e->getHTTPCode() == 500) {
+        rcube::raise_error(array(
+            'code' => 500,
+            'type' => 'php',
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'message' => $e->getMessage() . " (error 500)\n" . $e->getTraceAsString(),
+        ), true, false);
+    }
+});
 
 // finally, process the request
 $server->exec();

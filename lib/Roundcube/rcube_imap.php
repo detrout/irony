@@ -680,6 +680,41 @@ class rcube_imap extends rcube_storage
 
 
     /**
+     * Public method for listing message flags
+     *
+     * @param string $folder  Folder name
+     * @param array  $uids    Message UIDs
+     * @param int    $mod_seq Optional MODSEQ value (of last flag update)
+     *
+     * @return array Indexed array with message flags
+     */
+    public function list_flags($folder, $uids, $mod_seq = null)
+    {
+        if (!strlen($folder)) {
+            $folder = $this->folder;
+        }
+
+        if (!$this->check_connection()) {
+            return array();
+        }
+
+        // @TODO: when cache was synchronized in this request
+        // we might already have asked for flag updates, use it.
+
+        $flags  = $this->conn->fetch($folder, $uids, true, array('FLAGS'), $mod_seq);
+        $result = array();
+
+        if (!empty($flags)) {
+            foreach ($flags as $message) {
+                $result[$message->uid] = $message->flags;
+            }
+        }
+
+        return $result;
+    }
+
+
+    /**
      * Public method for listing headers
      *
      * @param   string   $folder     Folder name
@@ -1409,7 +1444,7 @@ class rcube_imap extends rcube_storage
     public function search_once($folder = null, $str = 'ALL')
     {
         if (!$str) {
-            return 'ALL';
+            $str = 'ALL';
         }
 
         if (!strlen($folder)) {
@@ -2121,7 +2156,7 @@ class rcube_imap extends rcube_storage
         // convert charset (if text or message part)
         if ($body && preg_match('/^(text|message)$/', $o_part->ctype_primary)) {
             // Remove NULL characters if any (#1486189)
-            if (strpos($body, "\x00") !== false) {
+            if ($formatted && strpos($body, "\x00") !== false) {
                 $body = str_replace("\x00", '', $body);
             }
 
@@ -2843,12 +2878,21 @@ class rcube_imap extends rcube_storage
 
     /**
      * Filter the given list of folders according to access rights
+     *
+     * For performance reasons we assume user has full rights
+     * on all personal folders.
      */
     protected function filter_rights($a_folders, $rights)
     {
         $regex = '/('.$rights.')/';
+
         foreach ($a_folders as $idx => $folder) {
+            if ($this->folder_namespace($folder) == 'personal') {
+                continue;
+            }
+
             $myrights = join('', (array)$this->my_rights($folder));
+
             if ($myrights !== null && !preg_match($regex, $myrights)) {
                 unset($a_folders[$idx]);
             }
@@ -3848,9 +3892,12 @@ class rcube_imap extends rcube_storage
     /**
      * Sort folders first by default folders and then in alphabethical order
      *
-     * @param array $a_folders Folders list
+     * @param array $a_folders    Folders list
+     * @param bool  $skip_default Skip default folders handling
+     *
+     * @return array Sorted list
      */
-    protected function sort_folder_list($a_folders)
+    public function sort_folder_list($a_folders, $skip_default = false)
     {
         $a_out = $a_defaults = $folders = array();
 
@@ -3862,7 +3909,7 @@ class rcube_imap extends rcube_storage
                 continue;
             }
 
-            if (($p = array_search($folder, $this->default_folders)) !== false && !$a_defaults[$p]) {
+            if (!$skip_default && ($p = array_search($folder, $this->default_folders)) !== false && !$a_defaults[$p]) {
                 $a_defaults[$p] = $folder;
             }
             else {

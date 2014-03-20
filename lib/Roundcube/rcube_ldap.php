@@ -554,7 +554,7 @@ class rcube_ldap extends rcube_addressbook
         }
         else {
             $prop    = $this->group_id ? $this->group_data : $this->prop;
-            $base_dn = $this->group_id ? $this->group_base_dn : $this->base_dn;
+            $base_dn = $this->group_id ? $prop['base_dn'] : $this->base_dn;
 
             // use global search filter
             if (!empty($this->filter))
@@ -1324,8 +1324,10 @@ class rcube_ldap extends rcube_addressbook
 
     /**
      * Remove all contact records
+     *
+     * @param bool $with_groups Delete also groups if enabled
      */
-    function delete_all()
+    function delete_all($with_groups = false)
     {
         // searching for contact entries
         $dn_list = $this->ldap->list_entries($this->base_dn, $this->prop['filter'] ? $this->prop['filter'] : '(objectclass=*)');
@@ -1335,6 +1337,16 @@ class rcube_ldap extends rcube_addressbook
                 $dn_list[$idx] = self::dn_encode($entry['dn']);
             }
             $this->delete($dn_list);
+        }
+
+        if ($with_groups && $this->groups && ($groups = $this->_fetch_groups()) && count($groups)) {
+            foreach ($groups as $group) {
+                $this->ldap->delete($group['dn']);
+            }
+
+            if ($this->cache) {
+                $this->cache->remove('groups');
+            }
         }
     }
 
@@ -1606,11 +1618,12 @@ class rcube_ldap extends rcube_addressbook
         // special case: list groups from 'group_filters' config
         if ($vlv_page === null && !empty($this->prop['group_filters'])) {
             $groups = array();
+            $rcube  = rcube::get_instance();
 
             // list regular groups configuration as special filter
             if (!empty($this->prop['groups']['filter'])) {
                 $id = '__groups__';
-                $groups[$id] = array('ID' => $id, 'name' => rcube_label('groups'), 'virtual' => true) + $this->prop['groups'];
+                $groups[$id] = array('ID' => $id, 'name' => $rcube->gettext('groups'), 'virtual' => true) + $this->prop['groups'];
             }
 
             foreach ($this->prop['group_filters'] as $id => $prop) {

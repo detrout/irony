@@ -85,6 +85,137 @@
         "description": "This package helps you to encode and decode punycode strings easily."
     },
     {
+        "name": "sabre/vobject",
+        "version": "2.1.x-dev",
+        "version_normalized": "2.1.9999999.9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/thomascube/sabre-vobject.git",
+            "reference": "741800a77d566fa474c88b36a79ca77dae7e3450"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/thomascube/sabre-vobject/zipball/741800a77d566fa474c88b36a79ca77dae7e3450",
+            "reference": "741800a77d566fa474c88b36a79ca77dae7e3450",
+            "shasum": ""
+        },
+        "require": {
+            "ext-mbstring": "*",
+            "php": ">=5.3.1"
+        },
+        "time": "2014-01-23 08:33:56",
+        "bin": [
+            "bin/vobjectvalidate.php"
+        ],
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "Sabre\\VObject": "lib/"
+            }
+        },
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Evert Pot",
+                "email": "evert@rooftopsolutions.nl",
+                "homepage": "http://evertpot.com/",
+                "role": "Developer"
+            }
+        ],
+        "description": "The VObject library for PHP allows you to easily parse and manipulate iCalendar and vCard objects",
+        "homepage": "https://github.com/fruux/sabre-vobject",
+        "keywords": [
+            "VObject",
+            "iCalendar",
+            "vCard"
+        ],
+        "support": {
+            "forum": "https://groups.google.com/group/sabredav-discuss",
+            "source": "https://github.com/fruux/sabre-vobject"
+        }
+    },
+    {
+        "name": "sabre/dav",
+        "version": "1.8.x-dev",
+        "version_normalized": "1.8.9999999.9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/fruux/sabre-dav.git",
+            "reference": "f8bad179521f434c60d836c8203f791b37a30657"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/fruux/sabre-dav/zipball/f8bad179521f434c60d836c8203f791b37a30657",
+            "reference": "f8bad179521f434c60d836c8203f791b37a30657",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ctype": "*",
+            "ext-date": "*",
+            "ext-dom": "*",
+            "ext-iconv": "*",
+            "ext-libxml": "*",
+            "ext-mbstring": "*",
+            "ext-pcre": "*",
+            "ext-simplexml": "*",
+            "ext-spl": "*",
+            "php": ">=5.3.1",
+            "sabre/vobject": "~2.1.0"
+        },
+        "provide": {
+            "evert/sabredav": "1.7.*"
+        },
+        "require-dev": {
+            "evert/phpdoc-md": "~0.0.7",
+            "phing/phing": "2.4.14",
+            "phpunit/phpunit": "3.7.*"
+        },
+        "suggest": {
+            "ext-apc": "*",
+            "ext-curl": "*",
+            "ext-pdo": "*"
+        },
+        "time": "2014-02-09 21:25:45",
+        "bin": [
+            "bin/sabredav"
+        ],
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "Sabre\\DAV": "lib/",
+                "Sabre\\HTTP": "lib/",
+                "Sabre\\DAVACL": "lib/",
+                "Sabre\\CalDAV": "lib/",
+                "Sabre\\CardDAV": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Evert Pot",
+                "email": "evert@rooftopsolutions.nl",
+                "homepage": "http://evertpot.com/",
+                "role": "Developer"
+            }
+        ],
+        "description": "WebDAV Framework for PHP",
+        "homepage": "http://code.google.com/p/sabredav/",
+        "keywords": [
+            "CalDAV",
+            "CardDAV",
+            "WebDAV",
+            "framework",
+            "iCalendar"
+        ]
+    },
+    {
         "name": "pear-pear.php.net/XML_Util",
         "version": "1.2.1",
         "version_normalized": "1.2.1.0",
@@ -237,19 +368,19 @@
     },
     {
         "name": "pear-pear.php.net/Net_URL2",
-        "version": "2.0.0",
-        "version_normalized": "2.0.0.0",
+        "version": "2.0.5",
+        "version_normalized": "2.0.5.0",
         "dist": {
             "type": "file",
-            "url": "http://pear.php.net/get/Net_URL2-2.0.0.tgz",
+            "url": "http://pear.php.net/get/Net_URL2-2.0.5.tgz",
             "reference": null,
             "shasum": null
         },
         "require": {
-            "php": ">=5.0.0.0"
+            "php": ">=5.1.4.0"
         },
         "replace": {
-            "pear-pear/net_url2": "== 2.0.0.0"
+            "pear-pear/net_url2": "== 2.0.5.0"
         },
         "type": "pear-library",
         "installation-source": "dist",
@@ -261,15 +392,15 @@
         "include-path": [
             "/"
         ],
-        "description": "Provides parsing of URLs into their constituent parts (scheme, host, path etc.), URL generation, and resolving of relative URLs."
+        "description": "Provides parsing of URLs into their constituent parts (scheme, host, path etc.), URL generation, and resolving of\n    relative URLs."
     },
     {
         "name": "pear-pear.php.net/HTTP_Request2",
-        "version": "2.1.1",
-        "version_normalized": "2.1.1.0",
+        "version": "2.2.1",
+        "version_normalized": "2.2.1.0",
         "dist": {
             "type": "file",
-            "url": "http://pear.php.net/get/HTTP_Request2-2.1.1.tgz",
+            "url": "http://pear.php.net/get/HTTP_Request2-2.2.1.tgz",
             "reference": null,
             "shasum": null
         },
@@ -279,7 +410,7 @@
             "php": ">=5.2.0.0"
         },
         "replace": {
-            "pear-pear/http_request2": "== 2.1.1.0"
+            "pear-pear/http_request2": "== 2.2.1.0"
         },
         "type": "pear-library",
         "installation-source": "dist",
@@ -292,136 +423,5 @@
             "/"
         ],
         "description": "PHP5 rewrite of HTTP_Request package (with parts of HTTP_Client). Provides\ncleaner API and pluggable Adapters:\n  * Socket adapter, based on old HTTP_Request code,\n  * Curl adapter, wraps around PHP's cURL extension,\n  * Mock adapter, to use for testing packages dependent on HTTP_Request2.\nSupports POST requests with data and file uploads, basic and digest\nauthentication, cookies, managing cookies across requests, proxies, gzip and\ndeflate encodings, redirects, monitoring the request progress with Observers..."
-    },
-    {
-        "name": "sabre/vobject",
-        "version": "2.1.x-dev",
-        "version_normalized": "2.1.9999999.9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/thomascube/sabre-vobject.git",
-            "reference": "84b64c65f9a94f7ec5a5e327bab3cc1335dd613c"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/thomascube/sabre-vobject/zipball/84b64c65f9a94f7ec5a5e327bab3cc1335dd613c",
-            "reference": "84b64c65f9a94f7ec5a5e327bab3cc1335dd613c",
-            "shasum": ""
-        },
-        "require": {
-            "ext-mbstring": "*",
-            "php": ">=5.3.1"
-        },
-        "time": "2013-10-29 09:31:33",
-        "bin": [
-            "bin/vobjectvalidate.php"
-        ],
-        "type": "library",
-        "installation-source": "source",
-        "autoload": {
-            "psr-0": {
-                "Sabre\\VObject": "lib/"
-            }
-        },
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Evert Pot",
-                "email": "evert@rooftopsolutions.nl",
-                "homepage": "http://evertpot.com/",
-                "role": "Developer"
-            }
-        ],
-        "description": "The VObject library for PHP allows you to easily parse and manipulate iCalendar and vCard objects",
-        "homepage": "https://github.com/fruux/sabre-vobject",
-        "keywords": [
-            "VObject",
-            "iCalendar",
-            "vCard"
-        ],
-        "support": {
-            "forum": "https://groups.google.com/group/sabredav-discuss",
-            "source": "https://github.com/fruux/sabre-vobject"
-        }
-    },
-    {
-        "name": "sabre/dav",
-        "version": "1.8.x-dev",
-        "version_normalized": "1.8.9999999.9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/fruux/sabre-dav.git",
-            "reference": "41c750da3c60a427cdd847df090ef0fc7e8f1076"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/fruux/sabre-dav/zipball/41c750da3c60a427cdd847df090ef0fc7e8f1076",
-            "reference": "41c750da3c60a427cdd847df090ef0fc7e8f1076",
-            "shasum": ""
-        },
-        "require": {
-            "ext-ctype": "*",
-            "ext-date": "*",
-            "ext-dom": "*",
-            "ext-iconv": "*",
-            "ext-libxml": "*",
-            "ext-mbstring": "*",
-            "ext-pcre": "*",
-            "ext-simplexml": "*",
-            "ext-spl": "*",
-            "php": ">=5.3.1",
-            "sabre/vobject": "~2.1.0"
-        },
-        "provide": {
-            "evert/sabredav": "1.7.*"
-        },
-        "require-dev": {
-            "evert/phpdoc-md": "~0.0.7",
-            "phing/phing": "2.4.14",
-            "phpunit/phpunit": "3.7.*"
-        },
-        "suggest": {
-            "ext-apc": "*",
-            "ext-curl": "*",
-            "ext-pdo": "*"
-        },
-        "time": "2013-10-02 18:38:26",
-        "bin": [
-            "bin/sabredav"
-        ],
-        "type": "library",
-        "installation-source": "source",
-        "autoload": {
-            "psr-0": {
-                "Sabre\\DAV": "lib/",
-                "Sabre\\HTTP": "lib/",
-                "Sabre\\DAVACL": "lib/",
-                "Sabre\\CalDAV": "lib/",
-                "Sabre\\CardDAV": "lib/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Evert Pot",
-                "email": "evert@rooftopsolutions.nl",
-                "homepage": "http://evertpot.com/",
-                "role": "Developer"
-            }
-        ],
-        "description": "WebDAV Framework for PHP",
-        "homepage": "http://code.google.com/p/sabredav/",
-        "keywords": [
-            "CalDAV",
-            "CardDAV",
-            "WebDAV",
-            "framework",
-            "iCalendar"
-        ]
     }
 ]

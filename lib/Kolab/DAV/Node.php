@@ -105,7 +105,7 @@ class Node implements \Sabre\DAV\INode
     public function delete()
     {
         try {
-            $this->storage->folder_delete($this->path);
+            $this->backend->folder_delete($this->path);
         }
         catch (Exception $e) {
             throw new \Sabre\DAV\Exception\Forbidden($e->getMessage());

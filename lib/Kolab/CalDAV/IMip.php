@@ -93,8 +93,8 @@ class IMip extends CalDAV\Schedule\IMip
             $message = new Mail_mime("\r\n");
             $message->setParam('text_encoding', 'quoted-printable');
             $message->setParam('head_encoding', 'quoted-printable');
-            $message->setParam('head_charset', RCMAIL_CHARSET);
-            $message->setParam('text_charset', RCMAIL_CHARSET . ";\r\n format=flowed");
+            $message->setParam('head_charset', RCUBE_CHARSET);
+            $message->setParam('text_charset', RCUBE_CHARSET . ";\r\n format=flowed");
 
             // compose common headers array
             $headers = array(
@@ -110,7 +110,7 @@ class IMip extends CalDAV\Schedule\IMip
                 $headers['User-Agent'] = $agent;
 
             $message->headers($headers);
-            $message->setContentType('text/calendar', array('method' => strval($vObject->method), 'charset' => RCMAIL_CHARSET));
+            $message->setContentType('text/calendar', array('method' => strval($vObject->method), 'charset' => RCUBE_CHARSET));
             $message->setTXTBody($ics);
 
             // send message through Roundcube's SMTP feature

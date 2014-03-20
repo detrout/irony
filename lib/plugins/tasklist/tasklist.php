@@ -71,13 +71,26 @@ class tasklist extends rcube_plugin
         // load plugin configuration
         $this->load_config();
 
-        // load localizations
-        $this->add_texts('localization/', $this->rc->task == 'tasks' && (!$this->rc->action || $this->rc->action == 'print'));
-        $this->rc->load_language($_SESSION['language'], array('tasks.tasks' => $this->gettext('navtitle')));  // add label for task title
-
         $this->timezone = $this->lib->timezone;
 
-        if ($this->rc->task == 'tasks' && $this->rc->action != 'save-pref') {
+        // proceed initialization in startup hook
+        $this->add_hook('startup', array($this, 'startup'));
+    }
+
+    /**
+     * Startup hook
+     */
+    public function startup($args)
+    {
+        // the tasks module can be enabled/disabled by the kolab_auth plugin
+        if ($this->rc->config->get('tasklist_disabled', false) || !$this->rc->config->get('tasklist_enabled', true))
+            return;
+
+        // load localizations
+        $this->add_texts('localization/', $args['task'] == 'tasks' && (!$args['action'] || $args['action'] == 'print'));
+        $this->rc->load_language($_SESSION['language'], array('tasks.tasks' => $this->gettext('navtitle')));  // add label for task title
+
+        if ($args['task'] == 'tasks' && $args['action'] != 'save-pref') {
             $this->load_driver();
 
             // register calendar actions
@@ -94,9 +107,9 @@ class tasklist extends rcube_plugin
 
             $this->collapsed_tasks = array_filter(explode(',', $this->rc->config->get('tasklist_collapsed_tasks', '')));
         }
-        else if ($this->rc->task == 'mail') {
+        else if ($args['task'] == 'mail') {
             // TODO: register hooks to catch ical/vtodo email attachments
-            if ($this->rc->action == 'show' || $this->rc->action == 'preview') {
+            if ($args['action'] == 'show' || $args['action'] == 'preview') {
                 // $this->add_hook('message_load', array($this, 'mail_message_load'));
                 // $this->add_hook('template_object_messagebody', array($this, 'mail_messagebody_html'));
             }
@@ -232,6 +245,10 @@ class tasklist extends rcube_plugin
                         $this->driver->edit_task($child);
                     }
                 }
+                // update parent task to adjust list of children
+                if (!empty($oldrec['parent_id'])) {
+                    $refresh[] = $this->driver->get_task(array('id' => $oldrec['parent_id'], 'list' => $rec['list']));
+                }
             }
 
             if (!$success)
@@ -364,27 +381,16 @@ class tasklist extends rcube_plugin
         }
 
         if (!empty($rec['date'])) {
-            try {
-                $date = new DateTime($rec['date'] . ' ' . $rec['time'], $this->timezone);
-                $rec['date'] = $date->format('Y-m-d');
-                if (!empty($rec['time']))
-                    $rec['time'] = $date->format('H:i');
-            }
-            catch (Exception $e) {
-                $rec['date'] = $rec['time'] = null;
-            }
+            $this->normalize_dates($rec, 'date', 'time');
         }
 
         if (!empty($rec['startdate'])) {
-            try {
-                $date = new DateTime($rec['startdate'] . ' ' . $rec['starttime'], $this->timezone);
-                $rec['startdate'] = $date->format('Y-m-d');
-                if (!empty($rec['starttime']))
-                    $rec['starttime'] = $date->format('H:i');
-            }
-            catch (Exception $e) {
-                $rec['startdate'] = $rec['starttime'] = null;
-            }
+            $this->normalize_dates($rec, 'startdate', 'starttime');
+        }
+
+        // convert tags to array, filter out empty entries
+        if (isset($rec['tags']) && !is_array($rec['tags'])) {
+            $rec['tags'] = array_filter((array)$rec['tags']);
         }
 
         // alarms cannot work without a date
@@ -412,6 +418,33 @@ class tasklist extends rcube_plugin
         return $rec;
     }
 
+    /**
+     * Utility method to convert a tasks date/time values into a normalized format
+     */
+    private function normalize_dates(&$rec, $date_key, $time_key)
+    {
+        try {
+            // parse date from user format (#2801)
+            $date_format = $this->rc->config->get(empty($rec[$time_key]) ? 'date_format' : 'date_long', 'Y-m-d');
+            $date = DateTime::createFromFormat($date_format, trim($rec[$date_key] . ' ' . $rec[$time_key]), $this->timezone);
+
+            // fall back to default strtotime logic
+            if (empty($date)) {
+                $date = new DateTime($rec[$date_key] . ' ' . $rec[$time_key], $this->timezone);
+            }
+
+            $rec[$date_key] = $date->format('Y-m-d');
+            if (!empty($rec[$time_key]))
+                $rec[$time_key] = $date->format('H:i');
+
+            return true;
+        }
+        catch (Exception $e) {
+            $rec[$date_key] = $rec[$time_key] = null;
+        }
+
+        return false;
+    }
 
     /**
      * Releases some resources after successful save

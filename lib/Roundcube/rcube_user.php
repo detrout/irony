@@ -125,8 +125,10 @@ class rcube_user
      */
     function get_prefs()
     {
+        $prefs = array();
+
         if (!empty($this->language))
-            $prefs = array('language' => $this->language);
+            $prefs['language'] = $this->language;
 
         if ($this->ID) {
             // Preferences from session (write-master is unavailable)
@@ -221,6 +223,14 @@ class rcube_user
         return false;
     }
 
+    /**
+     * Generate a unique hash to identify this user which
+     */
+    function get_hash()
+    {
+        $key = substr($this->rc->config->get('des_key'), 1, 4);
+        return md5($this->data['user_id'] . $key . $this->data['username'] . '@' . $this->data['mail_host']);
+    }
 
     /**
      * Get default identity of this user
@@ -257,7 +267,7 @@ class rcube_user
             "SELECT * FROM ".$this->db->table_name('identities').
             " WHERE del <> 1 AND user_id = ?".
             ($sql_add ? " ".$sql_add : "").
-            " ORDER BY ".$this->db->quoteIdentifier('standard')." DESC, name ASC, identity_id ASC",
+            " ORDER BY ".$this->db->quote_identifier('standard')." DESC, name ASC, identity_id ASC",
             $this->ID);
 
         while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
@@ -292,7 +302,7 @@ class rcube_user
         $query_cols = $query_params = array();
 
         foreach ((array)$data as $col => $value) {
-            $query_cols[]   = $this->db->quoteIdentifier($col) . ' = ?';
+            $query_cols[]   = $this->db->quote_identifier($col) . ' = ?';
             $query_params[] = $value;
         }
         $query_params[] = $iid;
@@ -328,7 +338,7 @@ class rcube_user
 
         $insert_cols = $insert_values = array();
         foreach ((array)$data as $col => $value) {
-            $insert_cols[]   = $this->db->quoteIdentifier($col);
+            $insert_cols[]   = $this->db->quote_identifier($col);
             $insert_values[] = $value;
         }
         $insert_cols[]   = 'user_id';
@@ -393,7 +403,7 @@ class rcube_user
         if ($this->ID && $iid) {
             $this->db->query(
                 "UPDATE ".$this->db->table_name('identities').
-                " SET ".$this->db->quoteIdentifier('standard')." = '0'".
+                " SET ".$this->db->quote_identifier('standard')." = '0'".
                 " WHERE user_id = ?".
                     " AND identity_id <> ?".
                     " AND del <> 1",
@@ -633,11 +643,11 @@ class rcube_user
         $result = array();
 
         $sql_result = $this->db->query(
-            "SELECT search_id AS id, ".$this->db->quoteIdentifier('name')
+            "SELECT search_id AS id, ".$this->db->quote_identifier('name')
             ." FROM ".$this->db->table_name('searches')
             ." WHERE user_id = ?"
-                ." AND ".$this->db->quoteIdentifier('type')." = ?"
-            ." ORDER BY ".$this->db->quoteIdentifier('name'),
+                ." AND ".$this->db->quote_identifier('type')." = ?"
+            ." ORDER BY ".$this->db->quote_identifier('name'),
             (int) $this->ID, (int) $type);
 
         while ($sql_arr = $this->db->fetch_assoc($sql_result)) {
@@ -665,9 +675,9 @@ class rcube_user
         }
 
         $sql_result = $this->db->query(
-            "SELECT ".$this->db->quoteIdentifier('name')
-                .", ".$this->db->quoteIdentifier('data')
-                .", ".$this->db->quoteIdentifier('type')
+            "SELECT ".$this->db->quote_identifier('name')
+                .", ".$this->db->quote_identifier('data')
+                .", ".$this->db->quote_identifier('type')
             ." FROM ".$this->db->table_name('searches')
             ." WHERE user_id = ?"
                 ." AND search_id = ?",
@@ -722,11 +732,11 @@ class rcube_user
 
         $insert_cols[]   = 'user_id';
         $insert_values[] = (int) $this->ID;
-        $insert_cols[]   = $this->db->quoteIdentifier('type');
+        $insert_cols[]   = $this->db->quote_identifier('type');
         $insert_values[] = (int) $data['type'];
-        $insert_cols[]   = $this->db->quoteIdentifier('name');
+        $insert_cols[]   = $this->db->quote_identifier('name');
         $insert_values[] = $data['name'];
-        $insert_cols[]   = $this->db->quoteIdentifier('data');
+        $insert_cols[]   = $this->db->quote_identifier('data');
         $insert_values[] = serialize($data['data']);
 
         $sql = "INSERT INTO ".$this->db->table_name('searches')

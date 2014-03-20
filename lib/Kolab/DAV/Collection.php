@@ -42,7 +42,7 @@ class Collection extends \Kolab\DAV\Node implements \Sabre\DAV\ICollection
             return $this->children;
         }
 
-        $level = substr_count($this->path, '/');
+        $path_len       = strlen($this->path);
         $this->children = array();
 
         try {
@@ -52,19 +52,38 @@ class Collection extends \Kolab\DAV\Node implements \Sabre\DAV\ICollection
         catch (Exception $e) {
         }
 
+
         // get subfolders
         foreach ($folders as $folder) {
-            $f_level = substr_count($folder, '/');
+            // need root-folders or subfolders of specified folder
+            if (!$path_len || ($pos = strpos($folder, $this->path . '/')) === 0) {
+                $virtual = false;
 
-            if (($this->path === '' && $f_level == 0)
-                || ($level == $f_level-1 && strpos($folder, $this->path . '/') === 0)
-            ) {
-                $this->children[] = new Collection(Collection::ROOT_DIRECTORY . '/' . $folder, $this);
+                // remove path suffix, the list might contain folders (roots) that
+                // do not exist e.g.:
+                //     Files
+                //     Files/Sub
+                //     Other Users/machniak/Files
+                //     Other Users/machniak/Files/Sub
+                // the list is sorted so we can do this in such a way
+                if ($pos = strpos($folder, '/', $path_len + 1)) {
+                    $folder  = substr($folder, 0, $pos);
+                    $virtual = true;
+                }
+
+                if (!array_key_exists($folder, $this->children)) {
+                    $path = Collection::ROOT_DIRECTORY . '/' . $folder;
+                    if ($path_len) {
+                        $folder = substr($folder, $path_len + 1);
+                    }
+
+                    $this->children[$folder] = new Collection($path, $this, array('virtual' => $virtual));
+                }
             }
         }
 
-        // non-root folder, get files list
-        if ($this->path !== '') {
+        // non-root existing folder, get files list
+        if ($path_len && empty($this->data['virtual'])) {
             try {
                 $files = $this->backend->file_list($this->path);
             }
@@ -72,7 +91,11 @@ class Collection extends \Kolab\DAV\Node implements \Sabre\DAV\ICollection
             }
 
             foreach ($files as $filename => $file) {
-                $this->children[] = new File(Collection::ROOT_DIRECTORY . '/' . $filename, $this, $file);
+                $path = Collection::ROOT_DIRECTORY . '/' . $filename;
+                // remove path prefix
+                $filename = substr($filename, $path_len + 1);
+
+                $this->children[$filename] = new File($path, $this, $file);
             }
         }
 
@@ -100,11 +123,10 @@ class Collection extends \Kolab\DAV\Node implements \Sabre\DAV\ICollection
             throw new \Sabre\DAV\Exception\NotFound('File not found: ' . $name);
         }
 
-        // @TODO: optimise this?
-        foreach ($this->getChildren() as $child) {
-            if ($child->getName() == $name) {
-                return $child;
-            }
+        $children = $this->getChildren();
+
+        if (array_key_exists($name, $children)) {
+            return $children[$name];
         }
 
         throw new \Sabre\DAV\Exception\NotFound('File not found: ' . $name);

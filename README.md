@@ -50,9 +50,9 @@ expects the CardDAV server to run at the root of the host [3].
 Add following mod_rewrite configuration into virtual host config or .htaccess file:
 
     RewriteEngine On
-    #RewriteBase /
-    RewriteRule ^\.well-known/caldav   / [R,L]
-    RewriteRule ^\.well-known/carddav  / [R,L]
+    RewriteBase /
+    RewriteRule ^\.well-known/caldav   / [L,R=301]
+    RewriteRule ^\.well-known/carddav  / [L,R=301]
 
     RewriteCond  %{REQUEST_FILENAME}  !-f
     RewriteCond  %{REQUEST_FILENAME}  !-d

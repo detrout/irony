@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Jeroen van Meeuwen (Kolab Systems) <vanmeeuwen@kolabsys.com>
 Uploaders: Paul Klos <kolab@klos2day.nl>, Diane Trout <diane@ghic.org>
 Build-Depends: debhelper (>= 8)
-Standards-Version: 3.9.3
+Standards-Version: 3.9.5
 Homepage: http://www.kolab.org/
 Vcs-Browser: http://git.kolabsys.com/apt/iRony/
 Vcs-Git: git://git.kolabsys.com/git/apt/iRony
